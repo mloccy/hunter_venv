@@ -1,0 +1,69 @@
+if(CMAKE_VERSION VERSION_LESS "3.12")
+  message(FATAL_ERROR "CMake 3.12+ required (FindPython module)")
+endif()
+
+@PACKAGE_INIT@
+
+check_required_components("@PROJECT_NAME@")
+
+# This file installed to '<root>/lib/cmake/hunter_venv/hunter_venvConfig.cmake'
+get_filename_component(
+    __hunter_venv_root
+    "${CMAKE_CURRENT_LIST_DIR}/../../.."
+    ABSOLUTE
+)
+
+set(CMAKE_FIND_FRAMEWORK NEVER CACHE STRING "...")
+if(NOT "${CMAKE_FIND_FRAMEWORK}" STREQUAL "NEVER")
+  message(FATAL_ERROR "CMAKE_FIND_FRAMEWORK is not NEVER")
+endif()
+
+set(Python_FIND_REGISTRY NEVER CACHE STRING "...")
+if(NOT "${Python_FIND_REGISTRY}" STREQUAL "NEVER")
+  message(FATAL_ERROR "Python_FIND_REGISTRY is not NEVER")
+endif()
+
+if("@HUNTER_VENV_USE_2@")
+  if(WIN32)
+    set(Python_ROOT_DIR "${__hunter_venv_root}/Scripts")
+    set(Python2_ROOT_DIR "${__hunter_venv_root}/Scripts")
+  else()
+    set(Python_ROOT_DIR "${__hunter_venv_root}")
+    set(Python2_ROOT_DIR "${__hunter_venv_root}")
+  endif()
+
+  set(Python2_FIND_REGISTRY NEVER CACHE STRING "...")
+  if(NOT "${Python2_FIND_REGISTRY}" STREQUAL "NEVER")
+    message(FATAL_ERROR "Python2_FIND_REGISTRY is not NEVER")
+  endif()
+
+  find_package(Python "@HUNTER_VENV_PYTHON_VERSION@" EXACT QUIET REQUIRED)
+  find_package(Python2 "@HUNTER_VENV_PYTHON_VERSION@" EXACT QUIET REQUIRED)
+endif()
+
+if("@HUNTER_VENV_USE_3@")
+  if(WIN32)
+    set(Python_ROOT_DIR "${__hunter_venv_root}/Scripts")
+    set(Python3_ROOT_DIR "${__hunter_venv_root}/Scripts")
+  else()
+    set(Python_ROOT_DIR "${__hunter_venv_root}")
+    set(Python3_ROOT_DIR "${__hunter_venv_root}")
+  endif()
+
+  set(Python3_FIND_REGISTRY NEVER CACHE STRING "...")
+  if(NOT "${Python3_FIND_REGISTRY}" STREQUAL "NEVER")
+    message(FATAL_ERROR "Python3_FIND_REGISTRY is not NEVER")
+  endif()
+
+  find_package(Python "@HUNTER_VENV_PYTHON_VERSION@" EXACT QUIET REQUIRED)
+  find_package(Python3 "@HUNTER_VENV_PYTHON_VERSION@" EXACT QUIET REQUIRED)
+endif()
+
+if("${HUNTER_VENV_INSTALL_SUFFIX}" STREQUAL "")
+  file(
+      RELATIVE_PATH
+      HUNTER_VENV_INSTALL_SUFFIX
+      "${__hunter_venv_root}"
+      "${Python_SITELIB}"
+  )
+endif()
