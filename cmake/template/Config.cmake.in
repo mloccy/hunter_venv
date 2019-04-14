@@ -1,5 +1,5 @@
-if(CMAKE_VERSION VERSION_LESS "3.12")
-  message(FATAL_ERROR "CMake 3.12+ required (FindPython module)")
+if(CMAKE_VERSION VERSION_LESS "3.13")
+  message(FATAL_ERROR "CMake 3.13+ required (FindPython module)")
 endif()
 
 @PACKAGE_INIT@
