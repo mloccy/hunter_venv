@@ -59,6 +59,7 @@ if("@HUNTER_VENV_USE_3@")
   find_package(Python3 "@HUNTER_VENV_PYTHON_VERSION@" EXACT QUIET REQUIRED)
 endif()
 
+# https://docs.python.org/3.6/install/#how-installation-works
 if("${HUNTER_VENV_INSTALL_SUFFIX}" STREQUAL "")
   file(
       RELATIVE_PATH
