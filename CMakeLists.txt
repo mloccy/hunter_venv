@@ -1,5 +1,7 @@
 # Python_FIND_REGISTRY and CMAKE_FIND_FRAMEWORK should be set to NEVER:
 # - https://cmake.org/cmake/help/v3.13/module/FindPython.html#hints
+# From 3.15 use Python_FIND_VIRTUALENV = ONLY as it has fewer side effects
+# - https://cmake.org/cmake/help/v3.15/module/FindPython.html#hints
 cmake_minimum_required(VERSION 3.13)
 
 project(hunter_venv)
