@@ -6,26 +6,35 @@ cmake_minimum_required(VERSION 3.13)
 
 project(hunter_venv)
 
-if("${HUNTER_VENV_PYTHON_VERSION}" STREQUAL "")
-  message(FATAL_ERROR "HUNTER_VENV_PYTHON_VERSION is empty")
+if (NOT HUNTER_NOT_CI)
+
+  if ("${HUNTER_VENV_PYTHON_VERSION}" STREQUAL "")
+    message(FATAL_ERROR "HUNTER_VENV_PYTHON_VERSION is empty")
+  else()
+    set(DESIRED_PY_VER ${HUNTER_VENV_PYTHON_VERSION})
+  endif()
+else()
+  find_package(Python REQUIRED)
+  set(DESIRED_PY_VER ${Python_VERSION})
 endif()
+
 
 set(HUNTER_VENV_USE_2 FALSE)
 set(HUNTER_VENV_USE_3 FALSE)
 
-if("${HUNTER_VENV_PYTHON_VERSION}" STREQUAL "2")
+if("${DESIRED_PY_VER}" STREQUAL "2")
   set(HUNTER_VENV_USE_2 TRUE)
 endif()
 
-if("${HUNTER_VENV_PYTHON_VERSION}" MATCHES "^2\\.")
+if("${DESIRED_PY_VER}" MATCHES "^2\\.")
   set(HUNTER_VENV_USE_2 TRUE)
 endif()
 
-if("${HUNTER_VENV_PYTHON_VERSION}" STREQUAL "3")
+if("${DESIRED_PY_VER}" STREQUAL "3")
   set(HUNTER_VENV_USE_3 TRUE)
 endif()
 
-if("${HUNTER_VENV_PYTHON_VERSION}" MATCHES "^3\\.")
+if("${DESIRED_PY_VER}" MATCHES "^3\\.")
   set(HUNTER_VENV_USE_3 TRUE)
 endif()
 
@@ -36,12 +45,21 @@ endif()
 if(NOT HUNTER_VENV_USE_2 AND NOT HUNTER_VENV_USE_3)
   message(
       FATAL_ERROR
-      "Incorrect version: ${HUNTER_VENV_PYTHON_VERSION}\n"
+      "Incorrect version: ${DESIRED_PY_VER}\n"
       "Only 2.* and 3.* supported."
   )
 endif()
 
-find_package(Python ${HUNTER_VENV_PYTHON_VERSION} EXACT REQUIRED)
+if (NOT HUNTER_NOT_CI)
+  find_package(Python REQUIRED)
+
+  if (NOT Python_VERSION STREQUAL "${DESIRED_PY_VER}")
+    message(FATAL_ERROR "Python version: ${DESIRED_PY_VER} was requested but not found,\
+     if this is not needed consider setting HUNTER_NOT_CI=On\
+      in your hunter cmake args for this package.")
+
+  endif()
+endif()
 
 message("Python_EXECUTABLE: ${Python_EXECUTABLE}")
 message("Python_SITELIB: ${Python_SITELIB}")
@@ -55,7 +73,11 @@ if(HUNTER_VENV_USE_2)
   if(NOT "${Python_VERSION_MAJOR}" STREQUAL "2")
     message(FATAL_ERROR "Internal error")
   endif()
-  find_package(Python2 ${HUNTER_VENV_PYTHON_VERSION} EXACT REQUIRED)
+  if (HUNTER_NOT_CI)
+    find_package(Python2 ${HUNTER_VENV_PYTHON_VERSION} REQUIRED)
+  else()
+    find_package(Python2 ${HUNTER_VENV_PYTHON_VERSION} EXACT REQUIRED)
+  endif()
   message("Python2_EXECUTABLE: ${Python2_EXECUTABLE}")
   message("Python2_SITELIB: ${Python2_SITELIB}")
 endif()
@@ -64,7 +86,11 @@ if(HUNTER_VENV_USE_3)
   if(NOT "${Python_VERSION_MAJOR}" STREQUAL "3")
     message(FATAL_ERROR "Internal error")
   endif()
-  find_package(Python3 ${HUNTER_VENV_PYTHON_VERSION} EXACT REQUIRED)
+  if (HUNTER_NOT_CI)
+    find_package(Python3 ${HUNTER_VENV_PYTHON_VERSION} REQUIRED)
+  else()
+    find_package(Python3 ${HUNTER_VENV_PYTHON_VERSION} EXACT REQUIRED)
+  endif()
   message("Python3_EXECUTABLE: ${Python3_EXECUTABLE}")
   message("Python3_SITELIB: ${Python3_SITELIB}")
 endif()
@@ -146,14 +172,43 @@ create_tool(wheel "wheel.cli")
 # Make an EXISTING virtualenv environment relocatable.
 # This fixes up scripts and makes all .pth files
 # relative.
-set(
-    cmd
-    ${Python_EXECUTABLE}
-    -m
-    virtualenv
-    --relocatable
-    ${venv_dir}
-)
+
+set(cmd ${Python_EXECUTABLE} -m virtualenv --version)
+
+set(cmd_human)
+foreach(x ${cmd})
+  set(cmd_human "${cmd_human} \"${x}\"")
+endforeach()
+
+message("Running command: ${cmd_human}")
+execute_process(COMMAND ${cmd} RESULT_VARIABLE result OUTPUT_VARIABLE VIRTUALENV_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+if (NOT result EQUAL "0")
+  message(FATAL_ERROR "Failed: ${result}")
+endif()
+
+string (REGEX MATCH "([0-9]+)\.([0-9])+\.([0-9]+)" matches ${VIRTUALENV_VERSION})
+
+if (${CMAKE_MATCH_1} GREATER_EQUAL 20)
+  set(
+      cmd
+      ${Python_EXECUTABLE}
+      -m
+      virtualenv
+      ${venv_dir}
+  )
+else()
+  set(
+      cmd
+      ${Python_EXECUTABLE}
+      -m
+      virtualenv
+      --relocatable
+      ${venv_dir}
+  )
+
+endif()
+
 
 set(cmd_human)
 foreach(x ${cmd})
