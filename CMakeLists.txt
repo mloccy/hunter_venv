@@ -3,6 +3,11 @@
 # From 3.15 use Python_FIND_VIRTUALENV = ONLY as it has fewer side effects
 # - https://cmake.org/cmake/help/v3.15/module/FindPython.html#hints
 cmake_minimum_required(VERSION 3.13)
+include (cmake/HunterGate.cmake)
+HunterGate(
+    URL "https://github.com/mloccy/hunter/archive/refs/tags/v0.25.40.tar.gz"
+    SHA1 "b316ac259c5a8cf35352cf606f768fb0812eabae"
+    LOCAL)
 
 project(hunter_venv)
 
@@ -14,7 +19,12 @@ if (NOT HUNTER_NOT_CI)
     set(DESIRED_PY_VER ${HUNTER_VENV_PYTHON_VERSION})
   endif()
 else()
-  find_package(Python REQUIRED)
+  find_package(Python)
+
+  if (NOT Python_FOUND)
+    hunter_add_package(python)
+    find_package(Python REQUIRED)
+  endif()
   set(DESIRED_PY_VER ${Python_VERSION})
 endif()
 
@@ -51,7 +61,10 @@ if(NOT HUNTER_VENV_USE_2 AND NOT HUNTER_VENV_USE_3)
 endif()
 
 if (NOT HUNTER_NOT_CI)
-  find_package(Python REQUIRED)
+  if (NOT Python_FOUND)
+    hunter_add_package(python)
+    find_package(Python REQUIRED)
+  endif()
 
   if (NOT Python_VERSION STREQUAL "${DESIRED_PY_VER}")
     message(FATAL_ERROR "Python version: ${DESIRED_PY_VER} was requested but not found,\
@@ -96,6 +109,48 @@ if(HUNTER_VENV_USE_3)
 endif()
 
 set(venv_dir "${CMAKE_CURRENT_BINARY_DIR}/venv")
+
+set(
+    cmd
+    ${Python_EXECUTABLE}
+    -m
+    ensurepip
+)
+
+set(cmd_human)
+foreach(x ${cmd})
+  set(cmd_human "${cmd_human} \"${x}\"")
+endforeach()
+
+message("Running command: ${cmd_human}")
+
+execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
+
+if(NOT result EQUAL "0")
+  message(FATAL_ERROR "Failed: ${result}")
+endif()
+
+set(
+    cmd
+    ${Python_EXECUTABLE}
+    -m
+    pip
+    install
+    virtualenv
+)
+
+set(cmd_human)
+foreach(x ${cmd})
+  set(cmd_human "${cmd_human} \"${x}\"")
+endforeach()
+
+message("Running command: ${cmd_human}")
+
+execute_process(COMMAND ${cmd} RESULT_VARIABLE result)
+
+if(NOT result EQUAL "0")
+  message(FATAL_ERROR "Failed: ${result}")
+endif()
 
 set(
     cmd
