@@ -87,7 +87,7 @@ if("@HUNTER_VENV_USE_3@")
   else()
     find_package(Python QUIET REQUIRED)
     find_package(Python3 QUIET REQUIRED)
-  endif()endif()
+  endif()
 
 # https://docs.python.org/3.6/install/#how-installation-works
 if("${HUNTER_VENV_INSTALL_SUFFIX}" STREQUAL "")
