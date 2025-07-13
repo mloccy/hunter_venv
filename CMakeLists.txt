@@ -280,7 +280,7 @@ endif()
 
 install(
     DIRECTORY ${venv_dir}/
-    DESTINATION .
+    DESTINATION ../hunter_venv
     USE_SOURCE_PERMISSIONS
 )
 
