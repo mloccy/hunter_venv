@@ -6,10 +6,11 @@ cmake_minimum_required(VERSION 3.13)
 include (cmake/HunterGate.cmake)
 HunterGate(
     URL "https://github.com/mloccy/hunter/archive/refs/tags/v0.25.40.tar.gz"
-    SHA1 "b316ac259c5a8cf35352cf606f768fb0812eabae"
+    SHA1 "27cc417a830340d7da4c38d5ba0792a6bfc0ad7d"
     LOCAL)
 
 project(hunter_venv)
+hunter_add_package(python)
 
 if (NOT HUNTER_NOT_CI)
 
