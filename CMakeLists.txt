@@ -280,9 +280,13 @@ if(NOT result EQUAL "0")
   message(FATAL_ERROR "Failed: ${result}")
 endif()
 
+if (NOT HUNTER_VENV_INSTALL_PATH)
+  set(HUNTER_VENV_INSTALL_PATH "../hunter_venv")
+endif()
+
 install(
     DIRECTORY ${venv_dir}/
-    DESTINATION ../hunter_venv
+    DESTINATION ${HUNTER_VENV_INSTALL_PATH}
     USE_SOURCE_PERMISSIONS
 )
 
