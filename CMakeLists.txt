@@ -160,6 +160,7 @@ function(create_tool path from)
   file(READ "${temp}" dst_content)
   file(WRITE "${dst}" "${dst_content}")
   file(REMOVE "${temp}")
+  message (STATUS "Wrote ${path} to ${dst}")
 endfunction()
 
 create_tool(easy_install "setuptools.command.easy_install")
