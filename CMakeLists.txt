@@ -5,8 +5,8 @@
 cmake_minimum_required(VERSION 3.13)
 include (cmake/HunterGate.cmake)
 HunterGate(
-    URL "https://github.com/mloccy/hunter/archive/refs/tags/v0.25.40.tar.gz"
-    SHA1 "27cc417a830340d7da4c38d5ba0792a6bfc0ad7d"
+    URL "https://github.com/mloccy/hunter/archive/refs/tags/v0.25.43.tar.gz"
+    SHA1 "9471f099d4c018775031ab667c6ce2bdc3c83ea7"
     LOCAL)
 
 project(hunter_venv)
@@ -200,9 +200,14 @@ endforeach()
 #   > cat `which pip`
 
 function(create_tool path from)
-  set(dst "${venv_dir}/bin/${path}")
+  set(basePath "${venv_dir}/bin")
+  if (NOT EXISTS "${basePath}")
+    set(basePath "${venv_dir}/Scripts")
+  endif()
+  set(dst "${basePath}/${path}")
 
-  if(NOT EXISTS "${dst}")
+  if(NOT EXISTS "${basePath}")
+    message(STATUS "EARLY EXIT - ${path} ${from} ${dst}")
     return()
   endif()
 
@@ -280,9 +285,7 @@ if(NOT result EQUAL "0")
   message(FATAL_ERROR "Failed: ${result}")
 endif()
 
-if (NOT HUNTER_VENV_INSTALL_PATH)
-  set(HUNTER_VENV_INSTALL_PATH "../hunter_venv")
-endif()
+set(HUNTER_VENV_INSTALL_PATH "../hunter_venv")
 
 install(
     DIRECTORY ${venv_dir}/
