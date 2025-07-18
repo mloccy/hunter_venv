@@ -286,7 +286,6 @@ if(NOT result EQUAL "0")
 endif()
 
 set(HUNTER_VENV_INSTALL_PATH "../hunter_venv")
-set(HUNTER_VENV_ABSOLUTE_INSTALL_PATH "${CMAKE_CURRENT_SOURCE_DIR}/${HUNTER_VENV_INSTALL_PATH}")
 
 install(
     DIRECTORY ${venv_dir}/
