@@ -257,6 +257,7 @@ if (${CMAKE_MATCH_1} GREATER_EQUAL 20)
       ${Python_EXECUTABLE}
       -m
       virtualenv
+      --copies
       ${venv_dir}
   )
 else()
