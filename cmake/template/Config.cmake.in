@@ -89,6 +89,14 @@ if("@HUNTER_VENV_USE_3@")
   else()
     find_program(Python_EXECUTABLE python HINTS ${Python_ROOT_DIR} NO_DEFAULT_PATH REQUIRED)
     find_program(Python3_EXECUTABLE python HINTS ${Python3_ROOT_DIR} NO_DEFAULT_PATH REQUIRED)
+    execute_process(COMMAND ${Python_EXECUTABLE} -c 'import site; print(site.getsitepackages()[0])'
+                    OUTPUT_VARIABLE Python_SITELIB
+                    OUTPUT_STRIP_TRAILING_WHITESPACE)
+
+    execute_process(COMMAND ${Python3_EXECUTABLE} -c 'import site; print(site.getsitepackages()[0])'
+                OUTPUT_VARIABLE Python3_SITELIB
+                OUTPUT_STRIP_TRAILING_WHITESPACE)
+    set (version "python3${}")
     set(Python_SITELIB "${__hunter_venv_root}/lib/site-packages")
     set(Python3_SITELIB "${__hunter_venv_root}/lib/site-packages")
   endif()
